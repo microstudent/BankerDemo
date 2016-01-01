@@ -22,9 +22,7 @@ namespace BankerDemo
     /// </summary>
     public partial class MainWindow : Window
     {
-        DataTableManager maxManager,needManager,allocationManager;
-
-        Matrix max, need, allocation;
+        Banker banker;
 
         private void tb_progressNum_SourceUpdated(object sender, DataTransferEventArgs e)
         {
@@ -40,26 +38,42 @@ namespace BankerDemo
         private void init()
         {
 
-            maxManager = new DataTableManager(dg_max);
-            needManager = new DataTableManager(dg_need);
-            allocationManager = new DataTableManager(dg_allocation);
-            max = new Matrix(1, 0);
-            need = new Matrix(1, 0);
-            allocation = new Matrix(1, 0);
+            DataTableManager maxManager = new DataTableManager(dg_max);
+            DataTableManager needManager = new DataTableManager(dg_need);
+            DataTableManager allocationManager = new DataTableManager(dg_allocation);
+            Matrix max = new Matrix(1, 0);
+            Matrix need = new Matrix(1, 0);
+            Matrix allocation = new Matrix(1, 0);
             max.dataChanged += maxManager.updateUI;
-            need.dataChanged += maxManager.updateUI;
-            allocation.dataChanged += maxManager.updateUI;
-            DataTable dt = max.getDataTable();
+            need.dataChanged += needManager.updateUI;
+            allocation.dataChanged += allocationManager.updateUI;
 
             maxManager.updateUI(max, null);
             needManager.updateUI(need, null);
             allocationManager.updateUI(allocation, null);
+
+            Resource available = new Resource(0);
+            Resource resCount = new Resource(0);
+            ResourceManager avaManager = new ResourceManager(dg_available);
+            ResourceManager resCountManager = new ResourceManager(dg_resCount);
+            available.dataChanged += avaManager.updateUI;
+            resCount.dataChanged += resCountManager.updateUI;
+            avaManager.updateUI(available, null);
+            resCountManager.updateUI(resCount, null);
+
+           
+            banker = new Banker(max, need, allocation, available, resCount);
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private void newProgress_Click(object sender, RoutedEventArgs e)
         {
-            max.newRow();
-            max.newColumn();
+            banker.newProgress("a");
+        }
+
+        private void bt_addRes_Click(object sender, RoutedEventArgs e)
+        {
+            banker.newRes();
+            tb_resCount.Text = ((Convert.ToInt32(tb_resCount.Text) + 1).ToString());
         }
     }
 }
