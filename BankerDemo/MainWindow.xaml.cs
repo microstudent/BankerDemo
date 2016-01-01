@@ -43,9 +43,9 @@ namespace BankerDemo
             maxManager = new DataTableManager(dg_max);
             needManager = new DataTableManager(dg_need);
             allocationManager = new DataTableManager(dg_allocation);
-            max = new Matrix(1, 3);
-            need = new Matrix(1, 3);
-            allocation = new Matrix(1, 3);
+            max = new Matrix(1, 0);
+            need = new Matrix(1, 0);
+            allocation = new Matrix(1, 0);
             max.dataChanged += maxManager.updateUI;
             need.dataChanged += maxManager.updateUI;
             allocation.dataChanged += maxManager.updateUI;
@@ -58,7 +58,8 @@ namespace BankerDemo
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            max.columnNum++;
+            max.newRow();
+            max.newColumn();
         }
     }
 }

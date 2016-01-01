@@ -14,7 +14,7 @@ namespace BankerDemo
         public event DataChangedEventHandler dataChanged;
 
         int row, column;    //行和列
-        int[,] data;        //存放矩阵的二维数组
+        List<List<Int32>> data;        //存放矩阵的二维数组
         string name;        //矩阵的名字
 
         public class DataChangedEventArgs : EventArgs
@@ -42,43 +42,54 @@ namespace BankerDemo
         {
             row = rowCount;
             column = columnCount;
-            data = new int[rowCount, columnCount];
+            data = new List<List<Int32>>();
+            data.Add(new List<int>());
             onDataChanged(null);
         }
 
-        public Matrix(int[,] members)
-        {
-            row = members.GetUpperBound(0) + 1;
-            column = members.GetUpperBound(1) + 1;
-            data = new int[row, column];
-            Array.Copy(members, data, row * column);
-        }
 
-        public int rowNum { get { return row; } }
-        public int columnNum {
-            set
-            {
-                int [,] t = new int[row, value];
-                Array.Copy(data, t, row * (value > column ? column : value));
-                data = t;
-                column = value;
-                onDataChanged(null);
-            }
-            get { return column; } }
+        public int rowNum
+        {
+            get { return row; }
+        }
+        public int columnNum {get { return column; } }
 
         public int this[int r, int c]
         {
             get
             {
-                return data[r, c];
+                return data[r][c];
             }
             set
             {
-                data[r, c] = value;
+                data[r][c] = value;
                 DataChangedEventArgs e = new DataChangedEventArgs(r, c, value, name);
                 onDataChanged(e);
             }
         }
+
+        public void newColumn()
+        {
+            foreach (List<Int32> a in data)
+            {
+                a.Add(0);
+            }
+            column++;
+            onDataChanged(null);
+        }
+
+        public void newRow()
+        {
+            List<Int32> t = new List<int>(data[0].ToArray());
+            for(int i = 0;i<t.Count;i++)
+            {
+                t[i] = 0;
+            }
+            data.Add(t);
+            row++;
+            onDataChanged(null);
+        }
+
         public DataTable getDataTable()
         {
             DataTable dt = new DataTable(name);
@@ -95,7 +106,7 @@ namespace BankerDemo
                 for (int j = 0;j<column;j++)
                 {
                     //添加数据
-                    dr[j + 1] = Convert.ToString(data[i,j]);
+                    dr[j + 1] = Convert.ToString(data[i][j]);
                 }
                 dt.Rows.Add(dr);
             }
