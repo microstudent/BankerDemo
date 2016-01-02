@@ -72,6 +72,12 @@ namespace BankerDemo
                 return false;
             }
             //TODO: 判断是否超出了一些进程的Max
+            if (isOverFlow(newRes))
+            {
+                LogoutEventArgs e = new LogoutEventArgs("error: 修改后不能满足某些进程的max最大需求.");
+                Logout.NewMsg(e);
+                return false;
+            }
             //修改Available,先计算出当前的已分配的资源向量，再进行向量加减
             List<int> allocationList = getAllocationList();
             List<int> result = new List<int>();
@@ -84,6 +90,17 @@ namespace BankerDemo
             resCount.modify(newRes);
             return true;
         }
+
+        private bool isOverFlow(List<int> newRes)
+        {
+            for(int i = 0; i < progNum; i++)
+            {
+                if (!BankerHelper.VectorLess(max.getVector(i), newRes))
+                    return true;
+            }
+            return false;
+        }
+
         //获取当前已经分配的资源总数向量
         private List<Int32> getAllocationList()
         {

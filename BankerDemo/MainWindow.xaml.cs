@@ -88,6 +88,7 @@ namespace BankerDemo
                 cb_progName.ItemsSource = null;
                 cb_progName.ItemsSource = banker.getProgressNameList();
                 tb_progressNum.Text = ((Convert.ToInt32(tb_progressNum.Text) + 1).ToString());
+                tb_newProgName.Clear();
             }
         }
 
