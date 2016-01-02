@@ -38,9 +38,20 @@ namespace BankerDemo
                 else
                 {
                     DataRow drOperate = datatable.Rows[e.row];
-                    drOperate[e.column + 1] = e.data;
+                    drOperate[e.column] = e.data;
                 }
             }
+        }
+
+        public List<int> getVector()
+        {
+            DataTable t = ((DataView)dg.ItemsSource).Table;
+            List<Int32> vector = new List<int>();
+            for (int i = 0; i < t.Columns.Count; i++)
+            {
+                vector.Add(Convert.ToInt32(t.Rows[0][i]));
+            }
+            return vector;
         }
     }
 }

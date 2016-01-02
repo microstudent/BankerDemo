@@ -57,7 +57,7 @@ namespace BankerDemo
             }
         }
 
-        public void alter(List<int> a)
+        public void modify(List<int> a)
         {
             if(a.Count!=data.Count)
             {
@@ -72,6 +72,13 @@ namespace BankerDemo
             data.Add(0);
             resNum++;
             onDataChanged(null);
+        }
+
+        //获取向量
+        public List<int> getDataList()
+        {
+            List<int> t = new List<int>(data.ToArray());
+            return t;
         }
 
         public DataTable getDataTable()

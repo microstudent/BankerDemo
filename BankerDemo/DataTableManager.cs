@@ -24,7 +24,7 @@ namespace BankerDemo
             dg.ItemsSource = datatable.DefaultView;
         }
 
-        public void updateUI(Object sender,Matrix.DataChangedEventArgs e)
+        public virtual void updateUI(Object sender,Matrix.DataChangedEventArgs e)
         {
             Matrix mx = sender as Matrix;
             if(dg!=null)

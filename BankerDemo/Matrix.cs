@@ -13,20 +13,18 @@ namespace BankerDemo
         public delegate void DataChangedEventHandler(Object sender, DataChangedEventArgs e);
         public event DataChangedEventHandler dataChanged;
 
-        int row, column;    //行和列
-        List<List<Int32>> data;        //存放矩阵的二维数组
-        string name;        //矩阵的名字
+        protected int row, column;    //行和列
+        protected List<List<Int32>> data;        //存放矩阵的二维数组
+        protected List<String> progressName;        //进程的名字
 
         public class DataChangedEventArgs : EventArgs
         {
             public readonly int row, column, data;
-            public readonly string name;
-            public DataChangedEventArgs(int Row, int Column, int Data, string Name)
+            public DataChangedEventArgs(int Row, int Column, int Data)
             {
                 this.row = Row;
                 this.column = Column;
                 this.data = Data;
-                this.name = Name;
             }
         }
 
@@ -38,15 +36,53 @@ namespace BankerDemo
             }
         }
 
+        public Matrix()
+        {
+            data = new List<List<Int32>>();
+            progressName = new List<string>();
+            onDataChanged(null);
+        }
+
         public Matrix(int rowCount, int columnCount)
         {
             row = rowCount;
             column = columnCount;
             data = new List<List<Int32>>();
-            data.Add(new List<int>());
+            progressName = new List<string>();
             onDataChanged(null);
         }
 
+        public List<List<Int32>> getData()
+        {
+            if (data != null)
+            {
+                List<List<int>> t = new List<List<int>>(data.ToArray());
+                return t;
+            }
+            else return null;
+        }
+        //获取某进程的资源向量
+        public List<int> getVector(string name)
+        {
+            int index = progressName.IndexOf(name);
+            List<Int32> vector = new List<int>();
+            for (int i = 0; i < column; i++)
+            {
+                vector.Add(Convert.ToInt32(data[index][i]));
+            }
+            return vector;
+        }
+
+        //根据位置获取某进程的资源向量
+        public List<int> getVector(int index)
+        {
+            List<Int32> vector = new List<int>();
+            for (int i = 0; i < column; i++)
+            {
+                vector.Add(Convert.ToInt32(data[index][i]));
+            }
+            return vector;
+        }
 
         public int rowNum
         {
@@ -63,7 +99,7 @@ namespace BankerDemo
             set
             {
                 data[r][c] = value;
-                DataChangedEventArgs e = new DataChangedEventArgs(r, c, value, name);
+                DataChangedEventArgs e = new DataChangedEventArgs(r, c, value);
                 onDataChanged(e);
             }
         }
@@ -78,21 +114,66 @@ namespace BankerDemo
             onDataChanged(null);
         }
 
-        public void newRow()
+        public virtual bool newRow(string header)
         {
-            List<Int32> t = new List<int>(data[0].ToArray());
-            for(int i = 0;i<t.Count;i++)
+            if(progressName.Contains(header))
             {
-                t[i] = 0;
+                LogoutEventArgs e = new LogoutEventArgs("error: 已存在同名进程，创建失败.");
+                Logout.NewMsg(e);
+                return false;
             }
-            data.Add(t);
-            row++;
-            onDataChanged(null);
+            else
+            {
+                progressName.Add(header);
+
+                List<Int32> t = new List<int>();
+                for (int i = 0; i < columnNum; i++)
+                {
+                    t.Add(0);
+                }
+                data.Add(t);
+                row++;
+                onDataChanged(null);
+                return true;
+            }
         }
 
-        public DataTable getDataTable()
+        public List<string> getProgressNameList()
         {
-            DataTable dt = new DataTable(name);
+            return progressName;
+        }
+
+        //修改单条进程所需最大资源数
+        public bool modify(string name,List<int> a)
+        {
+            if (a.Count != columnNum)
+            {
+                return false;
+            }
+            int index = progressName.IndexOf(name);
+            for(int i = 0; i < columnNum; i++)
+            {
+                data[index][i] = a[i];
+            }
+            onDataChanged(null);
+            return true;
+        }
+        //修改整个max表
+        public bool modify(List<List<Int32>> a)
+        {
+            if (a==null|| a.Count == 0)
+                return false;
+            if (a.Count != data.Count || a[0].Count != data[0].Count)
+                return false;
+            List<List<Int32>> t = new List<List<Int32>>(a.ToArray());
+            data = t;
+            onDataChanged(null);
+            return true;
+        }
+
+        public virtual DataTable getDataTable()
+        {
+            DataTable dt = new DataTable();
             dt.Columns.Add("进程",System.Type.GetType("System.String"));
             for (int i = 0; i < column; i++)         //添加列
             {
@@ -102,7 +183,7 @@ namespace BankerDemo
             {
                 DataRow dr = dt.NewRow();
                 //先加进程名
-                dr[0] = "P" + i;
+                dr[0] = progressName[i];
                 for (int j = 0;j<column;j++)
                 {
                     //添加数据

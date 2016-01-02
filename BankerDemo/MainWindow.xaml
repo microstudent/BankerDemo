@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BankerDemo"
         mc:Ignorable="d"
-        Title="银行家算法Demo" Height="600" Width="1000" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="银行家算法Demo" Height="600" Width="1000" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
@@ -22,11 +22,11 @@
             <StackPanel Orientation="Vertical">
                 <StackPanel Orientation="Horizontal" >
                     <TextBlock Text="当前进程数量：" VerticalAlignment="Center"/>
-                    <TextBox x:Name="tb_progressNum" Text="1" Width="50" Height="19" Margin="10" IsReadOnly="True" />
+                    <TextBox x:Name="tb_progressNum" Text="0" Width="50" Height="19" Margin="10" IsReadOnly="True" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="剩余资源数量(Available)：" VerticalAlignment="Center"/>
-                    <DataGrid  x:Name="dg_available" Margin="5"  CanUserReorderColumns="False" IsReadOnly="True" />
+                    <DataGrid  x:Name="dg_available" Margin="5" IsReadOnly="True" CanUserResizeColumns="False" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" Height="60" />
                 </StackPanel>
             </StackPanel>
         </GroupBox>
@@ -34,12 +34,12 @@
             <StackPanel Orientation="Vertical">
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="最大需求资源："/>
-                    <DataGrid  Margin="5"  CanUserReorderColumns="False"/>
+                    <DataGrid x:Name="dg_newProgMax" Margin="5"  CanUserReorderColumns="False" Height="60" CanUserResizeColumns="False" CanUserSortColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="进程名：" VerticalAlignment="Center"/>
-                    <TextBox Width="50" Height="19"/>
-                    <Button x:Name="bt_newProgress" Content="新建进程"  Width="75" Click="newProgress_Click" Height="19" Margin="10"/>
+                    <TextBox x:Name="tb_newProgName" Width="50" Height="19"/>
+                    <Button x:Name="bt_newProgress" Content="新建进程"  Width="75" Click="newProgress_Click" Height="19" Margin="10,0,0,0"/>
                 </StackPanel>
             </StackPanel>
         </GroupBox>
@@ -47,26 +47,26 @@
             <StackPanel Orientation="Vertical">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="资源种类数:" VerticalAlignment="Center" Margin="10,0,10,0"/>
-                    <TextBox  x:Name="tb_resCount" Text="1" Width="50" Height="19" IsReadOnly="True" />
+                    <TextBox  x:Name="tb_resCount" Text="0" Width="50" Height="19" IsReadOnly="True" />
                     <Button x:Name="bt_addRes" Content="增加" Width="35" Height="19" Click="bt_addRes_Click" Margin="10,0,0,0"/>
                 </StackPanel>
-                <DataGrid x:Name="dg_resCount" Margin="5"  CanUserReorderColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" CanUserResizeColumns="False" CanUserSortColumns="False" CanUserResizeRows="False"/>
-                <Button x:Name="bt_updateAvaliable" Content="提交修改"  Width="75" Height="19"/>
+                <DataGrid x:Name="dg_resCount" Margin="5"  CanUserReorderColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" CanUserResizeColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" Height="60"/>
+                <Button x:Name="bt_updateAvaliable" Content="提交修改"  Width="75" Height="19" Click="bt_updateAvaliable_Click"/>
             </StackPanel>
         </GroupBox>
         <GroupBox Header="进程申请资源" BorderBrush="Gray" Margin="10" Grid.Column="1" Grid.Row="1">
             <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="2">
-                <DataGrid  Margin="5"  CanUserReorderColumns="False"/>
+                <DataGrid x:Name="dg_request" Margin="5" Height="60" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeColumns="False" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeRows="False"/>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="进程名:" VerticalAlignment="Center" Margin="5"/>
-                    <TextBox Width="50" Height="19"/>
-                    <Button x:Name="bt_rsRequest" Content="提交申请" Width="75" Height="19" Margin="10"/>
+                    <ComboBox x:Name="cb_progName" Width="50" Height="19"/>
+                    <Button x:Name="bt_rsRequest" Content="提交申请" Width="75" Height="19" Margin="10" Click="bt_rsRequest_Click"/>
                 </StackPanel>
             </StackPanel>
         </GroupBox>
         <StackPanel Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="2" Orientation="Vertical" Margin="10" Grid.RowSpan="2">
             <GroupBox Header="输出日志">
-                <TextBox Width="Auto" Height="150" Text="12312313123" Margin="10"/>
+                <TextBox x:Name="tb_log" Width="Auto" Height="150" Margin="10" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
             </GroupBox>
         </StackPanel>
         <GroupBox Grid.Column="0" Grid.Row="2" Margin="10" BorderBrush="Goldenrod">
@@ -92,15 +92,7 @@
             <GroupBox.Header>
                 <TextBlock Text="Work+Allocation"/>
             </GroupBox.Header>
-            <DataGrid x:Name="dg_work" Margin="5"  CanUserReorderColumns="False" IsReadOnly="True">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{x:Null}" ClipboardContentBinding="{x:Null}" Header="进程名"/>
-                    <DataGridTextColumn Binding="{x:Null}" ClipboardContentBinding="{x:Null}" Header="A"/>
-                    <DataGridTextColumn Binding="{x:Null}" ClipboardContentBinding="{x:Null}" Header="B"/>
-                    <DataGridTextColumn Binding="{x:Null}" ClipboardContentBinding="{x:Null}" Header="C"/>
-                    <DataGridCheckBoxColumn Binding="{x:Null}" Header="Finish"/>
-                </DataGrid.Columns>
-            </DataGrid>
+            <DataGrid x:Name="dg_workPlusAllocation" Margin="5"  CanUserReorderColumns="False" IsReadOnly="True"/>
         </GroupBox>
     </Grid>
 </Window>
